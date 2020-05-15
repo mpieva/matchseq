@@ -4,14 +4,15 @@ use File::Basename;
 use Getopt::Long;
 
 my $qual_cutoff = 0;
-my $minread = 30;
+my $minread = 35;
 my $direction = 1;
 my $range = 100;
-my ($output, $side);
+my ($output, $side, $drop);
 
 GetOptions ("quality=s" => \$qual_cutoff,
 	    "minread=i" => \$minread,
             "range=i" => \$range,
+	    "drop" => \$drop,
             "output=i" => \$output);
 
 &help unless scalar @ARGV == 1;
@@ -19,11 +20,11 @@ GetOptions ("quality=s" => \$qual_cutoff,
 if ($output) {
     my $outname = basename($ARGV[0]);
     $outname =~ s/\.bam//;
-    open WRITE5, "| samtools view -S -b - >$outname.1st_dist$output.bam" or die "oculd not write file $! \n";
+    open WRITE5, "| samtools view -S -b - >$outname.1st_dist$output.bam" or die "could not write file $! \n";
     open WRITE3, "| samtools view -S -b - >$outname.2nd_dist$output.bam" or die "could not write file $! \n";
 }
 
-open BAM, "samtools view -hX $ARGV[0] |" or die "could not open file $!\n";
+open BAM, "samtools view -hX -F p $ARGV[0] |" or die "could not open file $!\n";
 
 my (%dist_hist, %gap_base, %gap_before, %gap_after);
 my ($counter, $interval) = (0, 0);
@@ -48,7 +49,9 @@ while (my $line = <BAM>) {
     my @fields = split /\t/, $line;
     my ($header, $flag, $chr, $start, $mapqual, $cigar, $junk1, $junk2, $junk3, $sequence) = split /\t/, $line;
     my $length = length($sequence);
-    next unless $chr =~ /^(\d{1,2}|X)$/;
+    unless ($drop) {
+	next unless $chr =~ /^(\d{1,2}|X)$/;
+    }
     next if $length < $minread;
     next if $mapqual < $qual_cutoff;
     my $end = aln_end($start, $cigar, $length);
@@ -101,7 +104,7 @@ sub aln_end {
 sub help {
 print STDERR "
 
-This script computes a histogram of the distance between the 3' end of each sequence and the closest 5' end of another sequence on the same strand. A 1-bp gap corresponds to a distance of 2. Input are sorted alignment files in BAM format produced by BWA.
+This script computes a histogram of the distance between the 3' end of each sequence and the closest 5' end of another sequence on the same strand. A 1-bp gap corresponds to a distance of 2. Input are sorted alignment files in BAM format produced by BWA. There is a strict requirement for single reads, paired reads are filtered out.
 
               --------------->          --------------->           ----------->
               5              3          5              3           5          3
@@ -112,18 +115,24 @@ This script computes a histogram of the distance between the 3' end of each sequ
                         
 
 [usage]
-alignment_distance.pl
+./alignment_distance.pl [-options] in.bam
 
 [options]
 -quality      map quality cutoff [0]
 -minread      minimal length cutoff [35]
 -range        range of values to report
 -output       write out sequences that have another sequence in distance X from their 5' or 3' end respectively. 
+-drop         drop filtering of sequences that are not mapped to the autosomes and chromosome X (recommended when using 
+              a reference genome other than hg19)
 
 [output]
 infile.1st_distX.bam   first (left) sequence whose 3' end is in distance X to the 5' end of the following sequence
 infile.2nd_distX.bam   second (right) sequences whose 5' end is in distance X to the 3' of the sequence to the left
 screen                 alignment distance histogram
+
+DEPENDENCIES
+This perl script has been successfully used with perl 5 (version 22). It requires 2 perl modules to be installed (File::Basename and Getopt::Long) as well as samtools (successfully used with version 1.3.1). 
+
 ";
 exit;
 }

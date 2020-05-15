@@ -797,7 +797,7 @@ sub decode_flag {
 
 sub help {
     print "
-This script reads a bam file and computes the reference base composition and substitution frequencies around 5p and 3p ends, including for di-nucleotides. Substitutions frequencies include all possible types; in addition CG->TG substitutions are considered separately. Reference base composition around alignment starts and ends can only be computed if the reference genome is provided. 
+This script reads a bam file and computes the reference base composition and substitution frequencies around 5p and 3p ends, including for di-nucleotides. Substitutions frequencies include all possible types; in addition CG->TG substitutions are considered separately. Reference base composition around alignment starts and ends can only be computed if the reference genome is provided. Input are sorted alignment files in BAM format.
 
 [usage]
 ./substitution_patterns [-options] in.bam in2.bam ...
@@ -822,6 +822,10 @@ in.3p_substitutions.txt                  substitution rates at 3p end
 in.Xp_dinucleotide_substitutions.txt     di-nucleotide substitution rates
 in.Xp_dinucleotide_refbase_compositions  di-nucleotide reference base composition
 STDOUT                                   number of sequences going into analysis, number of sequences filtered out
+
+DEPENDENCIES
+This perl script has been successfully used with perl 5 (version 22). It requires 2 perl modules to be installed (File::Basename, Getopt::Long) as well as samtools (successfully used with version 1.3.1). If graphical output is turned on, gnuplot (version 5.0) and GPL Ghostscript (version 9.26) have to be installed.
+
 ";
 exit;
 }
