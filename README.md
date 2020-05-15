@@ -44,7 +44,7 @@ quality score < 25 (using `samtools view`).
 1. Identification of overlapping sequence alignments on complementary strands 
    (putatively representing double-stranded DNA fragments)
 
-    The complementary_strands2.pl script is executed as follows:
+    The `complementary_strands2.pl` script is executed as follows:
 
     ```bash
     ./complementary_strands2.pl -output 2 vindija33.19.bam
@@ -69,7 +69,7 @@ quality score < 25 (using `samtools view`).
    genome, in same strand orientation (putatively representing gaps in 
    double-stranded DNA fragments)
 
-    Execute the alignment_distance.pl script as follows:
+    Execute the `alignment_distance.pl` script as follows:
 
     ```bash
     ./alignment_distance.pl -output 2 vindija33.19.bam >vindija33.19.gaps.txt
@@ -89,9 +89,10 @@ quality score < 25 (using `samtools view`).
       located located 2 bp downstream of the 3' end of another sequence mapped 
       to the same strand (i.e. sequences preceded by a 1 bp gap)
 
-3. Evaluating the position-dependent base composition and substitution frequencies in DNA strands assigned to various structural contexts.
+3. Evaluating the position-dependent base composition and substitution 
+   frequencies in DNA strands assigned to various structural contexts.
 
-    Execute the substitution_frequencies2.pl script as follows, using the BAM 
+    Execute the `substitution_frequencies2.pl` script as follows, using the BAM 
     files produced with the previous scripts as input. The reference genome 
     (hg19) has to be provided in fasta format.
 
